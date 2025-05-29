@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Монти Холл</title>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .doors { display: flex; justify-content: center; gap: 20px; margin: 30px; }
+        .door { 
+            width: 100px; height: 150px; background: #8B4513; color: white;
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; border-radius: 5px;
+        }
+        .open { background: #f0f0f0; }
+        .car { background: green; }
+        .goat { background: red; }
+        button { padding: 10px 20px; margin: 10px; cursor: pointer; }
+        .message { margin: 20px; font-size: 18px; }
+    </style>
+</head>
+<body>
+    <h1>Парадокс Монти Холла</h1>
+    <div class="doors">
+        <div class="door" data-door="1">Дверь 1</div>
+        <div class="door" data-door="2">Дверь 2</div>
+        <div class="door" data-door="3">Дверь 3</div>
+    </div>
+    <div class="message">Выберите дверь</div>
+    <button id="switch" disabled>Изменить выбор</button>
+    <button id="stay" disabled>Оставить выбор</button>
+    <button id="reset">Новая игра</button>
+
+    <script>
+        let carDoor, selectedDoor, openedDoor;
+        
+        function newGame() {
+            carDoor = Math.floor(Math.random() * 3) + 1;
+            selectedDoor = null;
+            openedDoor = null;
+            document.querySelectorAll('.door').forEach(door => {
+                door.className = 'door';
+                door.textContent = `Дверь ${door.dataset.door}`;
+                door.onclick = selectDoor;
+            });
+            document.querySelector('.message').textContent = 'Выберите дверь';
+            document.getElementById('switch').disabled = true;
+            document.getElementById('stay').disabled = true;
+        }
+        
+        function selectDoor(e) {
+            selectedDoor = parseInt(e.target.dataset.door);
+            
+            // Ведущий открывает дверь с козой
+            let availableDoors = [1, 2, 3].filter(d => d !== selectedDoor && d !== carDoor);
+            openedDoor = availableDoors[Math.floor(Math.random() * availableDoors.length)];
+            
+            document.querySelector(`[data-door="${openedDoor}"]`).className = 'door open';
+            document.querySelector(`[data-door="${openedDoor}"]`).textContent = 'Коза';
+            
+            document.querySelector('.message').textContent = `Я открыл дверь ${openedDoor} с козой. Хотите изменить выбор?`;
+            document.getElementById('switch').disabled = false;
+            document.getElementById('stay').disabled = false;
+            
+            // Отключаем выбор дверей
+            document.querySelectorAll('.door').forEach(door => {
+                door.onclick = null;
+            });
+        }
+        
+        function revealResult(switchDoor) {
+            let finalDoor = switchDoor ? 
+                [1, 2, 3].find(d => d !== selectedDoor && d !== openedDoor) : 
+                selectedDoor;
+            
+            document.querySelectorAll('.door').forEach(door => {
+                door.className = 'door';
+                if (parseInt(door.dataset.door) === carDoor) {
+                    door.className = 'door car';
+                    door.textContent = 'Автомобиль!';
+                } else if (parseInt(door.dataset.door) !== openedDoor) {
+                    door.className = 'door goat';
+                    door.textContent = 'Коза';
+                }
+            });
+            
+            if (finalDoor === carDoor) {
+                document.querySelector('.message').textContent = 'Поздравляем! Вы выиграли автомобиль!';
+            } else {
+                document.querySelector('.message').textContent = 'К сожалению, вы проиграли.';
+            }
+        }
+        
+        document.getElementById('switch').addEventListener('click', () => revealResult(true));
+        document.getElementById('stay').addEventListener('click', () => revealResult(false));
+        document.getElementById('reset').addEventListener('click', newGame);
+        
+        newGame();
+    </script>
+</body>
+</html>

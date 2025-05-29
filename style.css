@@ -1,0 +1,238 @@
+/* Основные стили */
+body {
+    font-family: Arial, sans-serif;
+    background: #f5b6b6;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
+
+.game-container {
+    background: rgb(243, 173, 173);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    max-width: 800px;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+    margin-top: 0;
+}
+
+/* Стили дверей */
+.doors {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px 0;
+    flex-wrap: wrap;
+}
+
+.door-container {
+    perspective: 1000px;
+}
+
+.door {
+    width: 150px;
+    height: 250px;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.5s;
+    cursor: pointer;
+}
+
+.front, .back {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 5px;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.front {
+    background: #8B4513;
+    color: rgb(229, 151, 151);
+    transform: rotateY(0deg);
+}
+
+.back {
+    background: #f9f9f9;
+    transform: rotateY(180deg);
+    padding: 10px;
+    box-sizing: border-box;
+}
+
+/* Изображения призов (замените на свои) */
+.car {
+    background: url('car.png') center/contain no-repeat;
+}
+
+.goat {
+    background: url('goat.png') center/contain no-repeat;
+}
+
+/* Скрытие радио-кнопок */
+.door-input, .action-input, .reset-input {
+    display: none;
+}
+
+/* Логика игры */
+
+/* При выборе двери - она открывается */
+.door-input:checked + .door {
+    transform: rotateY(180deg);
+}
+
+/* После выбора двери показываем сообщение */
+.door-input:checked ~ .messages .after-choice {
+    display: block;
+}
+
+.after-choice {
+    display: none;
+    margin: 20px 0;
+}
+
+/* Кнопки действий */
+.buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.btn {
+    padding: 10px 20px;
+    background: #4CAF50;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: #45a049;
+}
+
+/* Логика открытия двери с козой (ведущим) */
+/* Если выбрана дверь 1 (с авто), открываем дверь 2 */
+#door1:checked ~ .doors .door-container:nth-child(2) .door {
+    transform: rotateY(180deg);
+}
+
+/* Если выбрана дверь 2 (с козой), открываем дверь 3 */
+#door2:checked ~ .doors .door-container:nth-child(3) .door {
+    transform: rotateY(180deg);
+}
+
+/* Если выбрана дверь 3 (с козой), открываем дверь 2 */
+#door3:checked ~ .doors .door-container:nth-child(2) .door {
+    transform: rotateY(180deg);
+}
+
+/* Результат игры */
+.result {
+    display: none;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 15px;
+    border-radius: 5px;
+    margin: 20px 0;
+}
+
+/* Показ результата при оставлении выбора */
+#stay:checked ~ .messages .after-choice {
+    display: none;
+}
+
+#stay:checked ~ .messages .result {
+    display: block;
+}
+
+/* Показ результата при смене выбора */
+#switch:checked ~ .messages .after-choice {
+    display: none;
+}
+
+#switch:checked ~ .messages .result {
+    display: block;
+}
+
+/* Определение выигрыша */
+#door1:checked ~ #stay:checked ~ .messages .result,
+#door1:checked ~ #switch:checked ~ .doors .door-container:nth-child(1) .door {
+    background: #dff0d8;
+    color: #3c763d;
+}
+
+#door1:checked ~ #stay:checked ~ .messages .result::before,
+#door1:checked ~ #switch:checked ~ .messages .result::before {
+    content: "Поздравляем! Вы выиграли автомобиль!";
+}
+
+#door2:checked ~ #stay:checked ~ .messages .result::before,
+#door3:checked ~ #stay:checked ~ .messages .result::before,
+#door1:checked ~ #switch:checked ~ .doors .door-container:nth-child(2) .door,
+#door1:checked ~ #switch:checked ~ .doors .door-container:nth-child(3) .door {
+    background: #f2dede;
+    color: #a94442;
+}
+
+#door2:checked ~ #stay:checked ~ .messages .result::before,
+#door3:checked ~ #stay:checked ~ .messages .result::before {
+    content: "Вы проиграли. За дверью была коза.";
+}
+
+#door1:checked ~ #switch:checked ~ .messages .result::before {
+    content: "Вы проиграли. За дверью была коза.";
+}
+
+/* Кнопка сброса */
+.reset-btn {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #337ab7;
+    color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+.reset-btn:hover {
+    background: #286090;
+}
+
+.reset-input:checked ~ .doors .door {
+    transform: rotateY(0deg);
+}
+
+.reset-input:checked ~ .messages .after-choice,
+.reset-input:checked ~ .messages .result {
+    display: none;
+}
+
+/* Адаптивность */
+@media (max-width: 600px) {
+    .doors {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .door {
+        width: 120px;
+        height: 200px;
+    }
+    
+    .buttons {
+        flex-direction: column;
+    }
+}
